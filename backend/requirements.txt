@@ -1,6 +1,7 @@
-asgiref==3.8.1
-Django==4.2.21
-django-cors-headers==4.7.0
-djangorestframework==3.16.0
-sqlparse==0.5.3
-typing_extensions==4.13.2
+Django>=5.2
+djangorestframework>=3.14
+djangorestframework-authtoken>=1.2
+djangorestframework-simplejwt>=5.2
+torch>=2.0
+transformers>=4.30
+peft>=0.4

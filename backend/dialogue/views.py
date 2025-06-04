@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated
 from .models import DialogueLog, UserDialogFeature
 from .serializers import DialogueLogSerializer
 from ai_model.chat_engine import generate_reply
-from .models import DialogueLog  # 既存ログ保存用モデル
 
 class DialogueLogListCreateView(generics.ListCreateAPIView):
     queryset = DialogueLog.objects.all()
@@ -13,7 +12,6 @@ class DialogueLogListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        # 現在のユーザーを設定して保存
         serializer.save(user=self.request.user)
 
 class SelectTypeView(APIView):
@@ -38,15 +36,24 @@ class AIChatView(APIView):
     def post(self, request):
         user_input = request.data.get("user_input")
         if not user_input:
-            return Response({"error": "user_input is required"}, status=400)
+            return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        response_text = generate_reply(user_input)
+        try:
+            response_data = generate_reply(user_input)
+            cleaned_response = response_data.get("text", "").strip()
+            emotion = response_data.get("emotion", "neutral")
 
-        # 対話ログの保存（オプション）
-        DialogueLog.objects.create(
-            user=request.user,
-            user_input=user_input,
-            response_text=response_text
-        )
+            # 対話ログ保存（必要に応じて）
+            DialogueLog.objects.create(
+                user=request.user,
+                user_input=user_input,
+                response_text=cleaned_response
+            )
 
-        return Response({"response": response_text})
+            return Response({
+                "response": cleaned_response,
+                "emotion": emotion
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
