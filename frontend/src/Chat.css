@@ -1,3 +1,5 @@
+/* Chat.css */
+
 body, html {
   margin: 0;
   padding: 0;
@@ -5,126 +7,172 @@ body, html {
   font-family: sans-serif;
 }
 
-.app-container {
+.chat-background {
+  background-image: url("./png/forest.png");
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.chat-container {
   display: flex;
   flex-direction: row;
-  height: 100vh;
-  width: 100vw;
-  background-color: #000000; /* 木のような茶色 　*/
-}
-
-.character-area {
-  width: 25%;
-  background-color: #b8c6ad; /* フクロウエリア背景：木の茶色 */
-  display: flex;
-  justify-content: center;
+  justify-content: center; /* 全体中央寄せ */
   align-items: center;
+  flex: 1;
+  position: relative;
   padding: 1rem;
-  box-sizing: border-box;
+  gap: 3rem; /* キャラと吹き出しの間の隙間 */
 }
 
-.character-area img {
-  width: 400px;
+.character-main {
+  flex-shrink: 0;
+  width: 600px; /* 大きく */
+  max-height: 700px;
+  display: flex;
+  justify-content: center; /* 中央に */
+  align-items: center;
+  z-index: 1;
+}
+
+.character-main img {
+  width: 100%;
   height: auto;
   object-fit: contain;
-  animation: breathe 3s ease-in-out infinite; /* 呼吸のアニメーションを設定 */
+  animation: breathe 3s ease-in-out infinite;
 }
 
-/* 呼吸アニメーション */
 @keyframes breathe {
-  0% {
-    transform: scaleY(1); /* 初期状態 (通常の高さ) */
-  }
-  50% {
-    transform: scaleY(1.05); /* 少し縦に伸ばす */
-  }
-  100% {
-    transform: scaleY(1); /* 元に戻す */
-  }
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.05); }
 }
 
-
-.chat-area {
-  width: 75%;
+.response-area {
+  flex-grow: 1;
+  max-width: 40%; /* 吹き出しの最大幅を制限 */
+  position: relative;
+  margin-left: 0; /* キャラの右にぴったり */
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 1.5rem 1rem 1rem 1rem;
-  box-sizing: border-box;
-  background-color: #b9cfe1; 
-  border-radius: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 1.4rem; /* フォントを大きく */
 }
 
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 1rem;
+.response-bubble {
+  background-image: url("./png/hukidashi.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-size: 1.4rem; /* フォントサイズ大 */
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.message {
-  max-width: 80%; /* 吹き出しの最大幅を80%に設定 */
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  word-wrap: break-word;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem 4rem; /* 文字を縁から離す */
   white-space: pre-wrap;
-  display: inline-block; /* 吹き出しが縦に並ぶように修正 */
-  margin: 0.5rem 0;
+  word-wrap: break-word;
+  width: 100%;
+  max-width: 500px;
+  transition: height 0.3s ease, padding 0.3s ease;
+  overflow: hidden;
 }
 
-.message.owl {
-  background-color: #FFF3D0; /* フクロウのメッセージ：クリーム色 */
-  align-self: flex-start; /* フクロウのメッセージを左詰め */
-  border: 1px solid #D1B59D; /* クリーム色の枠線 */
+.bubble-height-small {
+  height: 180px;
 }
 
-.message.user {
-  background-color: #FFDD94; /* ユーザーのメッセージ：明るいオレンジ */
-  align-self: flex-end; /* ユーザーのメッセージを右詰め */
+.bubble-height-medium {
+  height: 280px;
 }
 
-.input-area {
+.bubble-height-large {
+  height: 380px;
+  padding: 3rem 5rem;
+}
+
+.input-area-bottom {
   display: flex;
-  padding-top: 1rem;
   gap: 0.5rem;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.85);
 }
 
-.input-area input {
+.input-area-bottom input {
   flex: 1;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #8B6D4D; /* 入力欄：ダークブラウン */
+  padding: 1rem;
+  font-size: 1.3rem; /* 大きく */
+  border: 1px solid #888;
   border-radius: 8px;
 }
 
-.input-area button {
-  padding: 0.5rem 1.2rem;
-  font-size: 1rem;
-  background-color: #4e8930; /* ボタン：ダークグリーン */
+.input-area-bottom button {
+  padding: 1rem 1.5rem;
+  font-size: 1.3rem; /* 大きく */
+  background-color: #4e8930;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.input-area button:hover {
-  background-color: #396D1F; /* ボタンホバー：さらに暗いグリーン */
+.input-area-bottom button:hover {
+  background-color: #396D1F;
 }
 
-@media (max-width: 768px) {
-  .app-container {
-    flex-direction: column;
-  }
+.history-toggle {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 2;
+}
 
-  .character-area {
-    width: 100%;
-    height: auto;
-  }
+.history-panel {
+  position: absolute;
+  left: 1rem;
+  top: 3.5rem;
+  bottom: 1rem;
+  width: 200px;
+  overflow-y: auto;
+  background-color: rgba(250, 250, 250, 0.95);
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  z-index: 2;
+}
 
-  .chat-area {
-    width: 100%;
-    padding: 1rem;
-  }
+.history-message {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.history-message.user {
+  background-color: #FFF5C2;
+}
+
+.history-message.owl {
+  background-color: #D8EDFF;
+}
+
+.sender-label {
+  font-size: 0.75rem;
+  color: #555;
+  margin-bottom: 0.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.history-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
