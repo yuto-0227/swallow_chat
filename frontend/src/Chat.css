@@ -4,8 +4,9 @@ body, html {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: sans-serif;
+  font-family: 'Rounded Mplus 1c', sans-serif;
 }
+
 
 .chat-background {
   background-image: url("./png/forest.png");
@@ -30,10 +31,10 @@ body, html {
 
 .character-main {
   flex-shrink: 0;
-  width: 600px; /* 大きく */
-  max-height: 700px;
+  width: 800px; /* ← ここ拡大 */
+  max-height: 900px; /* ← 拡大 */
   display: flex;
-  justify-content: center; /* 中央に */
+  justify-content: center;
   align-items: center;
   z-index: 1;
 }
@@ -52,46 +53,48 @@ body, html {
 
 .response-area {
   flex-grow: 1;
-  max-width: 40%; /* 吹き出しの最大幅を制限 */
+  max-width: 60%;
   position: relative;
-  margin-left: 0; /* キャラの右にぴったり */
+  margin-left: 0;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  font-size: 1.4rem; /* フォントを大きく */
+  font-size: 2.5rem; /* ← 拡大 */
 }
 
 .response-bubble {
+  max-width: 1200px;       /* 大幅アップ */
+  padding: 5rem 8rem;      /* かなり余裕をもたせる */
   background-image: url("./png/hukidashi.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  font-size: 1.4rem; /* フォントサイズ大 */
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2.5rem 4rem; /* 文字を縁から離す */
   white-space: pre-wrap;
   word-wrap: break-word;
-  width: 100%;
-  max-width: 500px;
   transition: height 0.3s ease, padding 0.3s ease;
   overflow: hidden;
 }
 
+
 .bubble-height-small {
-  height: 180px;
+  height: 300px; /* ぐっと大きく */
 }
 
 .bubble-height-medium {
-  height: 280px;
+  height: 480px;
 }
 
 .bubble-height-large {
-  height: 380px;
-  padding: 3rem 5rem;
+  height: 600px;
+  padding: 7rem 10rem; /* 最大の吹き出しはたっぷり余白 */
 }
+
+
 
 .input-area-bottom {
   display: flex;
@@ -103,14 +106,14 @@ body, html {
 .input-area-bottom input {
   flex: 1;
   padding: 1rem;
-  font-size: 1.3rem; /* 大きく */
+  font-size: 1.3rem;
   border: 1px solid #888;
   border-radius: 8px;
 }
 
 .input-area-bottom button {
   padding: 1rem 1.5rem;
-  font-size: 1.3rem; /* 大きく */
+  font-size: 1.3rem;
   background-color: #4e8930;
   color: white;
   border: none;
@@ -175,4 +178,83 @@ body, html {
 .history-text {
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+.name-button {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.nameplate {
+  position: absolute;
+  bottom: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 200px;
+}
+
+.nameplate img {
+  width: 100%;
+  height: auto;
+}
+
+.owl-name {
+  position: absolute;
+  top: 25%;
+  width: 100%;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333;
+  text-shadow: 1px 1px 2px white;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal-content input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 80%;
+  margin-top: 1rem;
+}
+
+.modal-buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-buttons button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
 }

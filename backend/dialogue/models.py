@@ -7,6 +7,7 @@ class DialogueLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     user_input = models.TextField()
     response_text = models.TextField()
+    emotion = models.CharField(max_length=20, default="neutral")
     created_at = models.DateTimeField(auto_now_add=True)
 
 

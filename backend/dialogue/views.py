@@ -43,11 +43,12 @@ class AIChatView(APIView):
             cleaned_response = response_data.get("text", "").strip()
             emotion = response_data.get("emotion", "neutral")
 
-            # 対話ログ保存（必要に応じて）
+            # 対話ログ保存（emotionも追加）
             DialogueLog.objects.create(
                 user=request.user,
                 user_input=user_input,
-                response_text=cleaned_response
+                response_text=cleaned_response,
+                emotion=emotion,
             )
 
             return Response({
@@ -57,3 +58,4 @@ class AIChatView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
