@@ -39,6 +39,13 @@ function SelectType() {
         >
           B
         </button>
+        <button
+          onClick={() => handleSelect("C")}
+          style={{ padding: "1rem 2rem", fontSize: "1.5rem" }}
+        >
+          C
+        </button>
+
       </div>
     </div>
   );
