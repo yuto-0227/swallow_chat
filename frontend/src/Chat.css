@@ -1,5 +1,3 @@
-/* Chat.css */
-
 body, html {
   margin: 0;
   padding: 0;
@@ -63,35 +61,27 @@ body, html {
 }
 
 .response-bubble {
-  max-width: 1200px;       /* 大幅アップ */
-  padding: 5rem 8rem;      /* かなり余裕をもたせる */
+  width: 5000px;         /* 吹き出し横幅 */
+  height: 1000px;        /* 吹き出し高さ */
   background-image: url("./png/hukidashi.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;    /* pの位置調整の基準にするため */
+  overflow: hidden;
+  font-size: 2.5rem;
+  /* flexは外して文字位置を自由に調整しやすく */
   text-align: center;
+}
+
+.response-bubble p {
+  position: absolute;   /* 吹き出し内で自由に位置調整可能に */
+  top: 400px;           /* 文字の上位置 */
+  left: 60px;          /* 文字の左位置 */
+  right: 60px;         /* 右位置の制約も入れる */
+  margin: 0;           /* デフォルトの余白をリセット */
   white-space: pre-wrap;
   word-wrap: break-word;
-  transition: height 0.3s ease, padding 0.3s ease;
-  overflow: hidden;
-}
-
-
-.bubble-height-small {
-  height: 300px; /* ぐっと大きく */
-}
-
-.bubble-height-medium {
-  height: 480px;
-}
-
-.bubble-height-large {
-  height: 600px;
-  padding: 7rem 10rem; /* 最大の吹き出しはたっぷり余白 */
 }
 
 
