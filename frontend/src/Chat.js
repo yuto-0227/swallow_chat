@@ -17,10 +17,10 @@ const emotionToImage = {
   angry: owlAngry,
   sad: owlSad,
   happy: owlHappy,
+  think: owlThinking,
 };
 
 function Chat() {
-  // Google Fontsの動的読み込み
   useEffect(() => {
     const link = document.createElement("link");
     link.href = "https://fonts.googleapis.com/css2?family=Rounded+Mplus+1c&display=swap";
@@ -38,23 +38,19 @@ function Chat() {
   const [owlEmotion, setOwlEmotion] = useState("neutral");
   const [isThinking, setIsThinking] = useState(false);
   const [owlName, setOwlName] = useState("おうるくん");
-  const [showNameModal, setShowNameModal] = useState(false);
-  const [tempName, setTempName] = useState("");
   const [showHistory, setShowHistory] = useState(false);
+  const [nicknameChangeMode, setNicknameChangeMode] = useState(false);
 
   const messagesEndRef = useRef(null);
 
-  // スクロール処理
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 初回ロード時にニックネーム取得
   useEffect(() => {
     const fetchNickname = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
-
       try {
         const response = await api.get("/accounts/profile/", {
           headers: { Authorization: `Bearer ${token}` },
@@ -63,18 +59,63 @@ function Chat() {
           setOwlName(response.data.nickname);
         }
       } catch (error) {
-        console.error("ニックネームの取得に失敗:", error);
+        console.error("ニックネーム取得失敗:", error);
       }
     };
-
     fetchNickname();
   }, []);
 
-  // メッセージ送信処理
+  const commandGroups = [
+    {
+      keywords: [
+        "呼び方を変えたい", "呼び方をかえたい", "よびかたを変えたい", "よびかたをかえたい", "呼び方変えたい",
+        "名前を変えたい", "名前変えたい","ニックネーム",
+      
+      ],
+      action: () => {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "owl", text: "呼び方を考えてくれるんですね！どんな呼び方にしてくれますか？" },
+        ]);
+        setNicknameChangeMode(true);
+        setIsThinking(false);
+        setOwlEmotion("happy");
+      },
+    },
+    {
+      keywords: [
+        "履歴を見たい", "履歴表示", "これまでの会話を見たい"
+      ],
+      action: () => {
+        setShowHistory(true);
+        setMessages((prev) => [
+          ...prev,
+          { sender: "owl", text: "これまでのお話を表示しますね。" },
+        ]);
+        setIsThinking(false);
+        setOwlEmotion("joy");
+      },
+    },
+    {
+      keywords: [
+        "履歴を隠したい", "履歴非表示",
+      ],
+      action: () => {
+        setShowHistory(false);
+        setMessages((prev) => [
+          ...prev,
+          { sender: "owl", text: "履歴を隠しました。また見たくなったら教えてくださいね。" },
+        ]);
+        setIsThinking(false);
+        setOwlEmotion("neutral");
+      },
+    },
+  ];
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage = input;
+    const userMessage = input.trim();
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
     setIsThinking(true);
@@ -82,23 +123,68 @@ function Chat() {
 
     const token = localStorage.getItem("token");
 
+    if (nicknameChangeMode) {
+      const name = userMessage;
+      if (name.length < 1 || name.length > 8) {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "owl", text: "呼び方を1〜8文字で決めて欲しいです。" },
+        ]);
+        setIsThinking(false);
+        setOwlEmotion("think");
+        return;
+      }
+
+      try {
+        await api.post(
+          "/accounts/update-nickname/",
+          { nickname: name },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setOwlName(name);
+        setOwlEmotion("happy");
+        setMessages((prev) => [
+          ...prev,
+          { sender: "owl", text: `わかりました！これからは「${name}」と呼んでくださいね！` },
+        ]);
+      } catch (error) {
+        console.error("ニックネーム更新失敗:", error);
+        setMessages((prev) => [
+          ...prev,
+          { sender: "owl", text: "ニックネームの更新に失敗しました…" },
+        ]);
+        setOwlEmotion("sad");
+      } finally {
+        setNicknameChangeMode(false);
+        setIsThinking(false);
+      }
+      return;
+    }
+
+    const matchedGroup = commandGroups.find(group =>
+      group.keywords.includes(userMessage)
+    );
+    if (matchedGroup) {
+      matchedGroup.action();
+      return;
+    }
+
     try {
       const response = await api.post(
         "/dialogue/ai-response/",
         { user_input: userMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       const { response: aiMessage, emotion: aiEmotion = "neutral" } = response.data;
       setMessages((prev) => [...prev, { sender: "owl", text: aiMessage }]);
       setOwlEmotion(aiEmotion);
     } catch (error) {
-      console.error("AI応答の取得に失敗:", error);
+      console.error("AI応答失敗:", error);
       setMessages((prev) => [
         ...prev,
         { sender: "owl", text: "すみません、エラーが発生しました。" },
       ]);
-      setOwlEmotion("neutral");
+      setOwlEmotion("sad");
     } finally {
       setIsThinking(false);
     }
@@ -106,30 +192,6 @@ function Chat() {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") handleSend();
-  };
-
-  // ニックネーム保存
-  const handleNameSave = async () => {
-    const name = tempName.trim();
-    if (name.length < 1 || name.length > 8) {
-      alert("ニックネームは1〜8文字で入力してください。");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      await api.post(
-        "/accounts/update-nickname/",
-        { nickname: name },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setOwlName(name);
-      setShowNameModal(false);
-      setTempName("");
-    } catch (error) {
-      console.error("ニックネームの更新に失敗:", error);
-      alert("ニックネームの更新に失敗しました。");
-    }
   };
 
   const lastOwlMessage = [...messages].reverse().find((msg) => msg.sender === "owl");
@@ -144,12 +206,16 @@ function Chat() {
   return (
     <div className="chat-background" style={{ fontFamily: "'Rounded Mplus 1c', sans-serif" }}>
       <div className="chat-container">
-        <button className="history-toggle" onClick={() => setShowHistory(!showHistory)}>
-          対話履歴
-        </button>
-        <button className="name-button" onClick={() => setShowNameModal(true)}>
-          名前変更
-        </button>
+        <div className="character-main">
+          <img
+            src={isThinking ? owlThinking : emotionToImage[owlEmotion] || owlNeutral}
+            alt="フクロウ"
+          />
+          <div className="nameplate">
+            <img src={namePlate} alt="ネームプレート" />
+            <div className="owl-name">{owlName}</div>
+          </div>
+        </div>
 
         {showHistory && (
           <div className="history-panel">
@@ -168,17 +234,6 @@ function Chat() {
           </div>
         )}
 
-        <div className="character-main">
-          <img
-            src={isThinking ? owlThinking : emotionToImage[owlEmotion] || owlNeutral}
-            alt="フクロウ"
-          />
-          <div className="nameplate">
-            <img src={namePlate} alt="ネームプレート" />
-            <div className="owl-name">{owlName}</div>
-          </div>
-        </div>
-
         <div className="response-area">
           {lastOwlMessage && (
             <div className={`response-bubble ${getBubbleSizeClass(lastOwlMessage.text)}`}>
@@ -194,36 +249,13 @@ function Chat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="入力してください..."
+          placeholder={nicknameChangeMode ? "ニックネームをつけてあげてください..." : "話しかけてあげてください..."}
           disabled={isThinking}
         />
         <button onClick={handleSend} disabled={isThinking}>
           送信
         </button>
       </div>
-
-      {showNameModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>
-              ニックネームの変更
-              <br />
-              (デフォルト：おうるくん)
-            </h2>
-            <input
-              type="text"
-              value={tempName}
-              onChange={(e) => setTempName(e.target.value)}
-              maxLength={8}
-              placeholder="1〜8文字で入力"
-            />
-            <div className="modal-buttons">
-              <button onClick={handleNameSave}>保存</button>
-              <button onClick={() => setShowNameModal(false)}>キャンセル</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
