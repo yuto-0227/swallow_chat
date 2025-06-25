@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import DialogueLog, UserDialogFeature
 from .serializers import DialogueLogSerializer
 
-# 3つのchat_engineから個別にインポート（ファイル名、関数名は調整してください）
+# モデルごとのチャットエンジン
 from ai_model.chat_engine_A import generate_reply as generate_reply_A
 from ai_model.chat_engine_B import generate_reply as generate_reply_B
 from ai_model.chat_engine_C import generate_reply as generate_reply_C
@@ -19,21 +19,39 @@ class DialogueLogListCreateView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class SelectTypeView(APIView):
+class SelectEntryModeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        type_selected = request.data.get('type')
-        user = request.user
+        entry_mode = request.data.get("entry_mode")
+        personality = request.data.get("personality")
 
-        if type_selected not in ['A', 'B', 'C']:
-            return Response({"error": "無効なタイプです。"}, status=status.HTTP_400_BAD_REQUEST)
+        if entry_mode not in ["survey", "quick"]:
+            return Response({"error": "entry_mode が不正です。"}, status=400)
+        if personality not in ["talkative", "calm", "neutral"]:
+            return Response({"error": "personality が不正です。"}, status=400)
+
+        # 対話特徴（エンジン）へのマッピング
+        if personality == "talkative":
+            feature_type = "A"
+        elif personality == "calm":
+            feature_type = "B"
+        else:
+            feature_type = "C"
 
         UserDialogFeature.objects.update_or_create(
-            user=user,
-            defaults={'feature_type': type_selected}
+            user=request.user,
+            defaults={
+                "entry_mode": entry_mode,
+                "personality": personality,
+                "feature_type": feature_type,
+            }
         )
-        return Response({"message": "選択が保存されました。"})
+
+        return Response({
+            "message": f"{entry_mode} / {personality} が設定されました。",
+            "feature_type": feature_type
+        })
 
 
 class AIChatView(APIView):
@@ -42,23 +60,24 @@ class AIChatView(APIView):
     def post(self, request):
         user_input = request.data.get("user_input")
         if not user_input:
-            return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "user_input is required"}, status=400)
 
         try:
             feature = UserDialogFeature.objects.get(user=request.user)
-            type_selected = feature.feature_type
+            feature_type = feature.feature_type
         except UserDialogFeature.DoesNotExist:
-            return Response({"error": "対話特徴が選択されていません。"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "対話特徴が未設定です。"}, status=400)
 
+        # モデル分岐
         try:
-            if type_selected == 'A':
+            if feature_type == "A":
                 response_data = generate_reply_A(user_input)
-            elif type_selected == 'B':
+            elif feature_type == "B":
                 response_data = generate_reply_B(user_input)
-            elif type_selected == 'C':
+            elif feature_type == "C":
                 response_data = generate_reply_C(user_input)
             else:
-                return Response({"error": "未知のタイプです。"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "未知の対話特徴です。"}, status=400)
 
             cleaned_response = response_data.get("text", "").strip()
             emotion = response_data.get("emotion", "neutral")
@@ -67,13 +86,13 @@ class AIChatView(APIView):
                 user=request.user,
                 user_input=user_input,
                 response_text=cleaned_response,
-                emotion=emotion,
+                emotion=emotion
             )
 
             return Response({
                 "response": cleaned_response,
                 "emotion": emotion
-            }, status=status.HTTP_200_OK)
+            })
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=500)

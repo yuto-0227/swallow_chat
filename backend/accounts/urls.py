@@ -1,7 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import ProfileView, update_nickname
-from .views import get_nickname
+from .views import ProfileView, update_nickname,get_nickname,mark_first_login_done
 
 urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # JWTに切り替え
@@ -9,4 +8,5 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='api-profile'),
     path('nickname/', get_nickname),
     path('update-nickname/', update_nickname, name='update-nickname'),
+    path('mark-first-login-done/', mark_first_login_done, name='mark-first-login-done'),
 ]

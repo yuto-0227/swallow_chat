@@ -17,13 +17,27 @@ function Login({ onLogin }) {
   
       if (response.status === 200) {
         localStorage.setItem("token", response.data.access);
-        onLogin();  // 親コンポーネントにログインを通知
-        navigate("/select-type");  // select-type に遷移
+        onLogin(); // ログイン状態を更新
+  
+        // 🔽 ログイン後にfirst_login_doneを取得して遷移先を決定
+        const profileRes = await axios.get("http://localhost:8000/api/accounts/profile/", {
+          headers: {
+            Authorization: `Bearer ${response.data.access}`,
+          },
+        });
+  
+        const firstLoginDone = profileRes.data.first_login_done;
+        if (!firstLoginDone) {
+          navigate("/select-type");
+        } else {
+          navigate("/chat");
+        }
       }
     } catch (err) {
       setError("ログインに失敗しました。ユーザー名またはパスワードが違います。");
     }
   };
+  
   
 
   return (

@@ -22,8 +22,22 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        user = request.user
+
+        # 特定ユーザー名「testuser」は毎回「初回ログイン扱い」にする
+        if user.username == "testuser":
+            user.first_login_done = False  # ← 毎回初回に強制
+        serializer = UserSerializer(user)
         return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def mark_first_login_done(request):
+    user = request.user
+    user.first_login_done = True
+    user.save()
+    return Response({'message': '初回ログインフラグを更新しました。'})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
