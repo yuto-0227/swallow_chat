@@ -1,4 +1,3 @@
-
 body, html {
   margin: 0;
   padding: 0;
@@ -69,26 +68,32 @@ body, html {
 }
 
 .response-bubble {
-  width: 7000px;
-  height: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 5rem 4rem 8rem;  /* 左右にバランス持たせる */
   background-image: url("./png/hukidashi.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  position: relative;
-  overflow: hidden;
-  font-size: 2.5rem;
+  max-width: 950px;              /* ← 少し横に拡張 */
+  min-width: 400px;
+  min-height: 180px;
+  font-size: 2.8rem;             /* ← 拡大 */
   text-align: center;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+  margin: 0 auto;
+  transition: all 0.5s ease-in-out; /* ← アニメーション */
 }
 
 .response-bubble p {
-  position: absolute;
-  top: 450px;
-  left: 80px;
-  right: 60px;
   margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  font-size: 2.8rem;
+  line-height: 1.9;
+  word-break: break-word;
+  transition: all 0.3s ease-in-out;
 }
 
 .input-area-bottom {
@@ -249,7 +254,11 @@ body, html {
   cursor: pointer;
 }
 
-/* スマホ用レスポンシブ */
+
+
+
+
+
 @media screen and (max-width: 767px) {
   html, body {
     padding: 0;
@@ -266,6 +275,9 @@ body, html {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .chat-container {
@@ -276,18 +288,10 @@ body, html {
     margin: 0;
   }
 
-  .input-area-bottom {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .response-area {
-    order: 0;
-    width: 100%;
-    max-width: 100%;
-    justify-content: center;
-    font-size: 1.8rem;
-    padding: 0 1rem;
+  .character-main {
+    width: 80%;
+    max-width: 300px;
+    order: 1;
   }
 
   .nameplate {
@@ -300,64 +304,93 @@ body, html {
     align-items: center;
   }
 
-  .nameplate img {
-    width: 800%;
-    height: auto;
-  }
-
   .owl-name {
-    position: static; /* 位置調整のため絶対位置解除 */
+    position: static;
     font-size: 1rem;
     color: #333;
     text-shadow: 1px 1px 2px white;
     margin-top: 0.2rem;
   }
 
-  .character-main {
-    width: 80%;
-    max-width: 300px;
-    order: 1; /* キャラは最後に表示 */
-  }
-
-  .nameplate {
-    width: 140px;
-    margin-top: -0.5rem;
-    position: static;
-  }
-
   .response-area {
     order: -1;
     justify-content: center;
-    font-size: 1.8rem;
     overflow: visible;
+    width: 100%;
     max-width: 100%;
     padding: 0 1rem;
   }
 
   .response-bubble {
-    width: 90%;
-    height: auto;
-    background-size: contain;
+    background-image: url("./png/hukidashi2.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: pre-wrap;
     margin: 0 auto;
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* 吹き出しサイズ調整（文字量に応じて） */
+  .bubble-size-small {
+    width: 70vw;
+    max-width: 400px;
+    padding: 2rem 2rem 2rem 2rem;
+  }
+
+  .bubble-size-medium {
+    width: 85vw;
+    max-width: 520px;
+    padding: 2.5rem 3rem 2.5rem 3rem;
+  }
+
+  .bubble-size-large {
+    width: 95vw;
+    max-width: 600px;
+    padding: 3rem 4rem 3rem 4rem;
   }
 
   .response-bubble p {
-    position: static;
-    padding: 1rem;
-    font-size: 1.6rem;
+    font-size: 2rem;
+    line-height: 1.7;
+    margin: 0;
+    transition: all 0.3s ease-in-out;
   }
 
   .input-area-bottom {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     gap: 0.5rem;
     padding: 1rem;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.95);
+    align-items: center;
   }
 
-  .input-area-bottom input,
+  .input-area-bottom input {
+    flex: 1;
+    font-size: 1.2rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #888;
+  }
+
   .input-area-bottom button {
-    width: 100%;
+    padding: 0.6rem 1rem;
     font-size: 1.1rem;
+    border-radius: 8px;
+    background-color: #4e8930;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  .input-area-bottom button:hover {
+    background-color: #396D1F;
   }
 
   .history-panel {
