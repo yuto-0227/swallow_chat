@@ -260,6 +260,50 @@ body, html {
   50% { transform: scaleY(1.05); }
 }
 
+
+/* ヘルプボタン */
+.hint-button {
+  position: fixed;
+  top: 10px;
+  right: 15px;
+  background-color: #ffffffcc;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 36px;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* ヘルプオーバーレイ（入力エリア以外を覆う） */
+.hint-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 70px; /* 入力欄の高さ分だけ空ける */
+  background-color: rgba(255, 255, 255, 0.85);
+  z-index: 1000;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+
+/* ヘルプウィンドウの中身 */
+.hint-content {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #ffffffee;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+
 /* ====== スマホ対応 ====== */
 @media screen and (max-width: 767px) {
   html, body {

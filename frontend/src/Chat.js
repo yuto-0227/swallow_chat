@@ -41,6 +41,9 @@ function Chat() {
   const [showHistory, setShowHistory] = useState(false);
   const [nicknameChangeMode, setNicknameChangeMode] = useState(false);
 
+  // ← 新規追加部分
+  const [showHint, setShowHint] = useState(false);
+
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -69,8 +72,7 @@ function Chat() {
     {
       keywords: [
         "呼び方を変えたい", "呼び方をかえたい", "よびかたを変えたい", "よびかたをかえたい", "呼び方変えたい",
-        "名前を変えたい", "名前変えたい","ニックネーム",
-      
+        "名前を変えたい", "名前変えたい", "ニックネーム",
       ],
       action: () => {
         setMessages((prev) => [
@@ -161,6 +163,7 @@ function Chat() {
       return;
     }
 
+    // コマンド判定（完全一致）
     const matchedGroup = commandGroups.find(group =>
       group.keywords.includes(userMessage)
     );
@@ -205,6 +208,26 @@ function Chat() {
 
   return (
     <div className="chat-background" style={{ fontFamily: "'Rounded Mplus 1c', sans-serif" }}>
+
+      {/* ヒントボタン */}
+      <div className="hint-button" onClick={() => setShowHint(!showHint)}>
+        {showHint ? "✕" : "?"}
+      </div>
+
+      {/* ヒントウィンドウ */}
+      {showHint && (
+        <div className="hint-overlay">
+          <div className="hint-content">
+            <h2>特別なワードガイド</h2>
+            <p>特別なワードを伝えることで</p>
+            <p>・「呼び方を変えたい」と言うと、{owlName}の名前を変えることができます。</p>
+            <p>・「履歴を見たい」と言うと、今までの会話履歴を表示することができます。</p>
+            <p>・「履歴を隠したい」で表示した履歴を閉じることができます。</p>
+          </div>
+        </div>
+      )}
+
+
       <div className="chat-container">
         <div className="character-main">
           <img
