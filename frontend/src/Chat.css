@@ -101,6 +101,7 @@ body, html {
   gap: 0.5rem;
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
 }
 
 .input-area-bottom input {
@@ -293,7 +294,7 @@ body, html {
 }
 
 /* ヘルプウィンドウの中身 */
-.hint-content {
+.h-content {
   max-width: 600px;
   margin: 0 auto;
   background-color: #ffffffee;
@@ -380,8 +381,13 @@ body, html {
     align-items: center;
   }
 
+  .owl-name {
+    top: 35%;
+  }
+
   .nameplate {
-    display: none;
+    width: 50%;
+    top: 80%;
   }
 
   .input-area-bottom {
