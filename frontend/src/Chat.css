@@ -311,8 +311,9 @@ body, html {
     padding: 0;
     margin: 0;
     width: 100vw;
-    overflow-x: hidden;
-    overflow-y: auto;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Rounded Mplus 1c', sans-serif;
   }
 
   .chat-background {
@@ -320,83 +321,93 @@ body, html {
     height: 100vh;
     background-size: cover;
     background-position: center;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    position: relative;
   }
 
   .chat-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 0;
-    margin: 0;
     flex: 1;
-    display: flex;
+    overflow-y: auto;
+    padding: 1rem;
+    margin-bottom: 260px; /* キャラと入力欄の重なりを防ぐ */
+    z-index: 1;
   }
 
   .response-area {
-    order: -1;
-    justify-content: center;
-    width: 100%;
-    max-width: 100%;
-    padding: 1rem;
     display: flex;
-    align-items: center;
     justify-content: center;
-    text-align: center;
+    align-items: flex-start;
+    width: 100%;
+    height:600px;
   }
 
   .response-bubble {
-    width: 92vw;
-    max-width: 640px;
     background-image: url("./png/hukidashi2.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
-    padding: 2.5rem 3rem;
     box-sizing: border-box;
     font-size: 2rem;
     line-height: 1.7;
     word-break: break-word;
     white-space: pre-wrap;
+  
+    /* 吹き出し高さを制限して中だけスクロール */
+    max-height: 50vh;       /* 表示領域の最大高さ */
+    overflow-y: auto;       /* 長文時にスクロール表示 */
+
+    padding: 5rem 3rem 3rem 3rem;
   }
 
+  /* 吹き出し内の段落も調整 */
   .response-bubble p {
     font-size: 2rem;
     line-height: 1.7;
     margin: 0;
+    overflow-wrap: break-word;
   }
-
+  
   .character-main {
-    width: 80%;
-    max-width: 300px;
-    order: 1;
-    margin-top: auto;
-    margin-bottom: 2rem;
+    position: fixed;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    max-width: 80%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-  }
-
-  .owl-name {
-    top: 35%;
+    z-index: 5;
   }
 
   .nameplate {
-    width: 50%;
-    top: 80%;
+    position: absolute;
+    top: 85%;
+    width: 45%;
+  }
+
+  .owl-name {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    text-align: center;
   }
 
   .input-area-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
     padding: 1rem;
     background-color: rgba(255, 255, 255, 0.95);
     align-items: center;
+    z-index: 10;
   }
 
   .input-area-bottom input {
@@ -421,6 +432,43 @@ body, html {
     background-color: #396D1F;
   }
 
+  .hint-button {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #eee;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+    z-index: 20;
+  }
+
+  .hint-overlay {
+    position: fixed;
+    top: 50px;
+    right: 10px;
+    width: 90vw;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #aaa;
+    border-radius: 12px;
+    padding: 1rem;
+    z-index: 15;
+  }
+
+  .hint-content h2 {
+    margin-top: 0;
+    font-size: 1.4rem;
+  }
+
+  .hint-content p {
+    margin: 0.4rem 0;
+    font-size: 1.1rem;
+  }
+
   .history-panel {
     position: fixed;
     top: 60px;
@@ -429,5 +477,23 @@ body, html {
     max-height: 300px;
     overflow-y: auto;
     z-index: 10;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 1rem;
+  }
+
+  .history-message {
+    margin-bottom: 0.5rem;
+  }
+
+  .sender-label {
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+
+  .history-text {
+    font-size: 1rem;
+    line-height: 1.4;
+    word-break: break-word;
+    white-space: pre-wrap;
   }
 }

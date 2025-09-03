@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "./api";
+import "./SelectType.css";
 
 function SelectType() {
   const [step, setStep] = useState("select");
-  const [scores, setScores] = useState(Array(16).fill(0));  // 16問に拡張
+  const [scores, setScores] = useState(Array(16).fill(0));
   const navigate = useNavigate();
 
   const handleSelect = async (mode) => {
@@ -38,7 +39,7 @@ function SelectType() {
       return acc + adjusted;
     }, 0);
 
-    let personality = totalScore >= 47 ? "talkative" : "calm";
+    let personality = totalScore >= 47 ? "calm": "talkative";
 
     try {
       await api.post("/dialogue/select-entry-mode/", {

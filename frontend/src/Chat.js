@@ -8,9 +8,18 @@ import owlAngry from "./png/owl_angry.png";
 import owlSad from "./png/owl_sad.png";
 import owlHappy from "./png/owl_happy.png";
 import owlThinking from "./png/owl_thinking.png";
-import owlFlap from "./gif/owl_flap.gif";
+
+import owlFlapNeutural from "./gif/owl_flap.gif";
+import owlFlapJoy from "./gif/owl_flap_joy.gif";
+import owlFlapAngry from "./gif/owl_flap_angry.gif";
+import owlFlapSad from "./gif/owl_flap_sad.gif";
+import owlFlapHappy from "./gif/owl_flap_happy.gif";
+
+import owlNeck from "./gif/owl_neck.gif";
+
 import namePlate from "./png/name.png";
 
+// PNG 表情マップ
 const emotionToImage = {
   neutral: owlNeutral,
   joy: owlJoy,
@@ -20,17 +29,63 @@ const emotionToImage = {
   think: owlThinking,
 };
 
+// GIF 表情マップ
+const emotionToGifList = {
+  neutral: [owlFlapNeutural, owlNeck],
+  joy: [owlFlapJoy],
+  angry: [owlFlapAngry],
+  sad: [owlFlapSad],
+  happy: [owlFlapHappy],
+};
+
+// ===== 挨拶リスト =====
+const greetings = {
+  morning: [
+    "おはようございます！今日も一日がんばりましょうね。",
+    "おはよう！どんな朝を迎えていますか？",
+  ],
+  afternoon: [
+    "こんにちは。お話を聞かせてくださいね。",
+    "こんにちは！今日はどんな気分ですか？",
+  ],
+  evening: [
+    "こんばんは。ゆっくり過ごしていますか？",
+    "こんばんは！今日一日お疲れさまでした。",
+  ],
+  night: [
+    "夜更かし中ですか？無理しないでくださいね。",
+    "こんばんは。眠れないときは少しお話ししましょうか？",
+  ],
+};
+
+// 時間帯を判定する関数
+const getTimeOfDay = () => {
+  const hour = new Date().getHours();
+  if (hour < 10) return "morning";
+  if (hour < 17) return "afternoon";
+  if (hour < 20) return "evening";
+  return "night";
+};
+
+// ランダムで挨拶を返す関数
+const getInitialGreeting = () => {
+  const time = getTimeOfDay();
+  const list = greetings[time];
+  return list[Math.floor(Math.random() * list.length)];
+};
+
 function Chat() {
   useEffect(() => {
     const link = document.createElement("link");
-    link.href = "https://fonts.googleapis.com/css2?family=Rounded+Mplus+1c&display=swap";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Rounded+Mplus+1c&display=swap";
     link.rel = "stylesheet";
     document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
 
   const [messages, setMessages] = useState([
-    { sender: "owl", text: "こんにちは。お話を聞かせてくださいね。" },
+    { sender: "owl", text: getInitialGreeting() },
   ]);
   const [input, setInput] = useState("");
   const [owlEmotion, setOwlEmotion] = useState("neutral");
@@ -39,7 +94,11 @@ function Chat() {
   const [showHistory, setShowHistory] = useState(false);
   const [nicknameChangeMode, setNicknameChangeMode] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [isIdle, setIsIdle] = useState(false);
+
+  // Idle用
+  const [isIdleGif, setIsIdleGif] = useState(null);
+  const idleTimerRef = useRef(null);
+  const gifTimerRef = useRef(null);
 
   const messagesEndRef = useRef(null);
 
@@ -65,21 +124,34 @@ function Chat() {
     fetchNickname();
   }, []);
 
-  // 入力監視（15秒無入力でGIF、10秒後に解除）
+  // ===== Idle GIF 再生制御 =====
+  const resetIdleTimer = () => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    if (gifTimerRef.current) clearTimeout(gifTimerRef.current);
+    setIsIdleGif(null);
+    idleTimerRef.current = setTimeout(playIdleGif, 10000); // 10秒後
+  };
+
+  const playIdleGif = () => {
+    const gifList = emotionToGifList[owlEmotion] || [];
+    if (gifList.length === 0) return;
+
+    const randomGif = gifList[Math.floor(Math.random() * gifList.length)];
+    setIsIdleGif(randomGif);
+
+    gifTimerRef.current = setTimeout(() => {
+      setIsIdleGif(null);
+      resetIdleTimer();
+    }, 3000); // 3秒でPNGに戻す
+  };
+
   useEffect(() => {
-    if (input.trim() === "") {
-      const idleTimer = setTimeout(() => {
-        setIsIdle(true);
-        const resetTimer = setTimeout(() => {
-          setIsIdle(false);
-        }, 10000); // 10秒で戻る
-        return () => clearTimeout(resetTimer);
-      }, 15000); // 15秒後動く
-      return () => clearTimeout(idleTimer);
-    } else {
-      setIsIdle(false); // 入力中ならidle解除
-    }
-  }, [input]);
+    resetIdleTimer();
+    return () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (gifTimerRef.current) clearTimeout(gifTimerRef.current);
+    };
+  }, [owlEmotion]);
 
   const commandGroups = [
     {
@@ -87,7 +159,10 @@ function Chat() {
       action: () => {
         setMessages((prev) => [
           ...prev,
-          { sender: "owl", text: "呼び方を考えてくれるんですね！どんな呼び方にしてくれますか？" },
+          {
+            sender: "owl",
+            text: "呼び方を考えてくれるんですね！どんな呼び方にしてくれますか？",
+          },
         ]);
         setNicknameChangeMode(true);
         setIsThinking(false);
@@ -112,7 +187,10 @@ function Chat() {
         setShowHistory(false);
         setMessages((prev) => [
           ...prev,
-          { sender: "owl", text: "履歴を隠しました。また見たくなったら教えてくださいね。" },
+          {
+            sender: "owl",
+            text: "履歴を隠しました。また見たくなったら教えてくださいね。",
+          },
         ]);
         setIsThinking(false);
         setOwlEmotion("neutral");
@@ -122,6 +200,8 @@ function Chat() {
 
   const handleSend = async () => {
     if (!input.trim()) return;
+    resetIdleTimer();
+
     const userMessage = input.trim();
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setInput("");
@@ -150,7 +230,10 @@ function Chat() {
         setOwlName(userMessage);
         setMessages((prev) => [
           ...prev,
-          { sender: "owl", text: `わかりました！これからは「${userMessage}」と呼んでくださいね！` },
+          {
+            sender: "owl",
+            text: `わかりました！これからは「${userMessage}」と呼んでくださいね！`,
+          },
         ]);
         setOwlEmotion("happy");
       } catch (error) {
@@ -180,7 +263,8 @@ function Chat() {
         { user_input: userMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const { response: aiMessage, emotion: aiEmotion = "neutral" } = response.data;
+      const { response: aiMessage, emotion: aiEmotion = "neutral" } =
+        response.data;
       setMessages((prev) => [...prev, { sender: "owl", text: aiMessage }]);
       setOwlEmotion(aiEmotion);
     } catch (error) {
@@ -199,7 +283,9 @@ function Chat() {
     if (e.key === "Enter") handleSend();
   };
 
-  const lastOwlMessage = [...messages].reverse().find((msg) => msg.sender === "owl");
+  const lastOwlMessage = [...messages]
+    .reverse()
+    .find((msg) => msg.sender === "owl");
 
   const getBubbleSizeClass = (text) => {
     const len = text.length;
@@ -208,8 +294,15 @@ function Chat() {
     return "bubble-height-large";
   };
 
+  // 表示するキャラ画像
+  const currentOwlSrc =
+    isIdleGif || (isThinking ? owlThinking : emotionToImage[owlEmotion]);
+
   return (
-    <div className="chat-background" style={{ fontFamily: "'Rounded Mplus 1c', sans-serif" }}>
+    <div
+      className="chat-background"
+      style={{ fontFamily: "'Rounded Mplus 1c', sans-serif" }}
+    >
       {/* ヒントボタン */}
       <div className="hint-button" onClick={() => setShowHint(!showHint)}>
         {showHint ? "✕" : "?"}
@@ -229,16 +322,7 @@ function Chat() {
 
       <div className="chat-container">
         <div className="character-main">
-          <img
-            src={
-              isIdle
-                ? owlFlap
-                : isThinking
-                ? owlThinking
-                : emotionToImage[owlEmotion] || owlNeutral
-            }
-            alt="フクロウ"
-          />
+          <img src={currentOwlSrc} alt="フクロウ" />
           <div className="nameplate">
             <img src={namePlate} alt="ネームプレート" />
             <div className="owl-name">{owlName}</div>
@@ -261,7 +345,11 @@ function Chat() {
 
         <div className="response-area">
           {lastOwlMessage && (
-            <div className={`response-bubble ${getBubbleSizeClass(lastOwlMessage.text)}`}>
+            <div
+              className={`response-bubble ${getBubbleSizeClass(
+                lastOwlMessage.text
+              )}`}
+            >
               <p>{lastOwlMessage.text}</p>
             </div>
           )}
@@ -272,10 +360,15 @@ function Chat() {
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            resetIdleTimer(); // 入力があればIdleリセット
+          }}
           onKeyPress={handleKeyPress}
           placeholder={
-            nicknameChangeMode ? "名付けてあげてください..." : "話しかけてあげてください..."
+            nicknameChangeMode
+              ? "名付けてあげてください..."
+              : "話しかけてあげてください..."
           }
           disabled={isThinking}
         />
